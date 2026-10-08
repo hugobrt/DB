@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Décibelmètre</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;600;700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#E8EDF0; --panel:#F6F8F9; --ink:#13202B; --muted:#5B6B77; --line:#C9D3DA;
+  --ok:#0F7B8A; --warn:#C98A00; --bad:#C8372D; --track:#D4DDE3;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){--bg:#10181F;--panel:#17222B;--ink:#E7EEF2;--muted:#8DA0AD;--line:#2A3946;--ok:#3CC3D3;--warn:#F0B429;--bad:#FF6B5E;--track:#243440}
+}
+:root[data-theme="dark"]{--bg:#10181F;--panel:#17222B;--ink:#E7EEF2;--muted:#8DA0AD;--line:#2A3946;--ok:#3CC3D3;--warn:#F0B429;--bad:#FF6B5E;--track:#243440}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Familjen Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.4}
+main{max-width:760px;margin:0 auto;padding:20px 16px 32px}
+header{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:8px}
+h1{font-size:1.5rem;margin:0;font-weight:700;letter-spacing:-.01em}
+#status{font-size:.9rem;color:var(--muted)}
+.gauge{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:12px 8px 20px;text-align:center}
+svg{width:100%;max-width:420px;height:auto;display:block;margin:0 auto}
+#arc{transition:stroke .25s}
+.big{font-size:74px;font-weight:700;fill:var(--ink);font-variant-numeric:tabular-nums;letter-spacing:-.03em}
+.unit{font-size:20px;fill:var(--muted);font-weight:600}
+.tick{font-size:11px;fill:var(--muted)}
+#desc{font-size:1.15rem;font-weight:600;margin:0}
+#note{font-size:.9rem;color:var(--muted);margin:2px 0 0;min-height:1.3em}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);margin:18px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.stats div{padding:12px 6px;text-align:center}
+.stats div+div{border-left:1px solid var(--line)}
+.stats b{display:block;font-size:1.5rem;font-variant-numeric:tabular-nums}
+.stats span{font-size:.8rem;color:var(--muted)}
+canvas{width:100%;height:180px;display:block;background:var(--panel);border:1px solid var(--line);border-radius:14px}
+.controls{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;align-items:center}
+button{font:inherit;font-weight:600;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:999px;padding:10px 18px;cursor:pointer}
+button.main{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+button[aria-pressed="true"]{background:var(--ok);color:#fff;border-color:var(--ok)}
+button:focus-visible,input:focus-visible{outline:3px solid var(--ok);outline-offset:2px}
+.seg{display:flex;gap:0}
+.seg button:first-child{border-radius:999px 0 0 999px}
+.seg button:last-child{border-radius:0 999px 999px 0;margin-left:-1px}
+.cal{margin-top:22px;font-size:.9rem;color:var(--muted)}
+.cal label{display:flex;align-items:center;gap:10px;flex-wrap:wrap;color:var(--ink);font-weight:600}
+.cal input[type=range]{flex:1;min-width:160px;accent-color:var(--ok)}
+.cal output{font-variant-numeric:tabular-nums;min-width:5ch}
+.fest{background:#07080d;color:#fff;border:2px solid #1c1f2b;border-radius:20px;padding:18px 16px 14px;transition:border-color .2s,box-shadow .2s}
+.fest[hidden]{display:none}
+.fest.over{border-color:#FF2D2D;box-shadow:0 0 28px rgba(255,45,45,.45)}
+.ftop{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px;margin-bottom:14px}
+#fnum{font-family:Orbitron,"Courier New",monospace;font-weight:700;font-size:clamp(56px,16vw,104px);line-height:1;color:#2BE36B;text-shadow:0 0 18px currentColor;font-variant-numeric:tabular-nums}
+#funit{font-family:Orbitron,"Courier New",monospace;font-size:1.1rem;margin-left:10px;color:#9aa3b5}
+.flim{text-align:right;font-size:.9rem;color:#9aa3b5}
+.flim input{font:inherit;width:6ch;padding:6px;border-radius:8px;border:1px solid #2a2f40;background:#10121b;color:#fff}
+#fover{display:block;margin-top:6px;font-weight:700;font-size:1.05rem;color:#2BE36B}
+.fest.over #fover{color:#FF2D2D;animation:blink .6s steps(2) infinite}
+@keyframes blink{50%{opacity:.25}}
+@media (prefers-reduced-motion:reduce){.fest.over #fover{animation:none}}
+#fcv{height:250px;background:transparent;border:0;border-radius:0}
+.wiz{border-top:1px solid var(--line);padding-top:14px;margin-bottom:16px;color:var(--ink)}
+.wiz p{margin:0 0 12px}
+.wiz .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:6px}
+.wiz input[type=number]{font:inherit;width:6.5ch;padding:8px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink)}
+#calmsg{font-weight:600;min-height:1.4em;color:var(--ok)}
+#err{color:var(--bad);font-weight:600;margin-top:12px;display:none}
+@media (max-width:480px){.stats b{font-size:1.15rem}.big{font-size:68px}}
+</style>
+</head>
+<body>
+<main>
+  <header><h1>Décibelmètre</h1><span id="status">Micro à l’arrêt</span></header>
+
+  <div class="seg" role="group" aria-label="Affichage" style="margin:0 0 12px"><button id="vG" aria-pressed="true">Jauge</button><button id="vF" aria-pressed="false">Festival</button></div>
+
+  <section class="gauge" aria-label="Niveau sonore">
+    <svg viewBox="0 0 300 250" role="img" aria-label="Jauge de niveau sonore">
+      <path id="track" d="" fill="none" stroke="var(--track)" stroke-width="16" stroke-linecap="round" pathLength="100"/>
+      <path id="arc" d="" fill="none" stroke="var(--ok)" stroke-width="16" stroke-linecap="round" pathLength="100" stroke-dasharray="0 100"/>
+      <g id="ticks"></g>
+      <text id="val" class="big" x="150" y="160" text-anchor="middle">--</text>
+      <text id="unitlbl" class="unit" x="150" y="190" text-anchor="middle">dB(A)</text>
+    </svg>
+    <p id="desc">Prêt à mesurer</p>
+    <p id="note" aria-live="polite">Appuie sur Démarrer et autorise le micro.</p>
+  </section>
+
+  <section class="fest" id="fest" hidden aria-label="Affichage festival">
+    <div class="ftop">
+      <div><span id="fnum">--</span><span id="funit">dB(A)</span></div>
+      <div class="flim"><label>Limite <input id="lim" type="number" min="60" max="130" step="1" value="105"> dB</label><span id="fover">Sous la limite</span></div>
+    </div>
+    <canvas id="fcv" aria-label="Barre de LED et spectre"></canvas>
+  </section>
+
+  <div class="stats">
+    <div><b id="sMin">--</b><span>Min</span></div>
+    <div><b id="sAvg">--</b><span>Moyenne (Leq)</span></div>
+    <div><b id="sMax">--</b><span>Max</span></div>
+    <div><b id="sPeak">--</b><span>Crête</span></div>
+  </div>
+
+  <canvas id="graph" aria-label="Historique des 60 dernières secondes"></canvas>
+
+  <div class="controls">
+    <button id="go" class="main">Démarrer</button>
+    <button id="reset">Réinitialiser</button>
+    <div class="seg" role="group" aria-label="Pondération">
+      <button id="wA" aria-pressed="true">dB(A)</button>
+      <button id="wZ" aria-pressed="false">dB(Z)</button>
+    </div>
+    <div class="seg" role="group" aria-label="Temps de réponse">
+      <button id="tF" aria-pressed="true">Rapide</button>
+      <button id="tS" aria-pressed="false">Lente</button>
+    </div>
+  </div>
+  <div id="err"></div>
+
+  <div class="cal">
+    <div class="wiz">
+      <p><b>Étape 1 : bruit de fond.</b> Fais le silence complet pendant 5 secondes. Le bruit propre au micro est mesuré puis retiré de toutes les mesures, ce qui rend les faibles niveaux bien plus justes.</p>
+      <div class="row"><button id="calNoise">Mesurer le silence (5 s)</button></div>
+      <p style="margin-top:16px"><b>Étape 2 : niveau de référence.</b> Place une source dont tu connais le niveau (calibrateur, ou sonomètre de référence à côté) et saisis sa valeur, dans la même pondération que celle affichée (A ou Z).</p>
+      <div class="row"><input id="refDb" type="number" min="30" max="130" step="0.1" value="94" aria-label="Niveau de référence en dB"> dB <button id="calRef">Étalonner sur la référence (5 s)</button></div>
+      <div id="calmsg" aria-live="polite"></div>
+    </div>
+    <label for="cal">Réglage manuel <input id="cal" type="range" min="40" max="160" step="0.5" value="95"><output id="calOut">95</output></label>
+    <p>Chaque micro est différent : les valeurs sont relatives tant que tu n’as pas étalonné. Compare avec un sonomètre de référence (ou une source connue, par exemple 94 dB à 1 kHz) puis ajuste le curseur jusqu’à obtenir la même valeur. Les réglages automatiques du micro (réduction de bruit, gain auto) sont désactivés pour garder la mesure fidèle.</p>
+  </div>
+</main>
+
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const MIN_DB=30, MAX_DB=120, CX=150, CY=140, R=118, A0=150, SPAN=240;
+let ctx,an,stream,tbuf,fbuf,timer=null,weighting='A',tau=0.125,calib=95;
+let noiseMs=0,noiseBins=null,cal={mode:null};const CAL_N=100;
+let view='G',ph=0,phT=0,limit=105;const bands=new Array(16).fill(20);
+let P=0,sumE=0,T=0,mn=Infinity,mx=-Infinity,peak=-Infinity,hist=[],started=false;
+const HIST_N=600, DT=0.05;
+
+try{const c=parseFloat(localStorage.getItem('dbcal'));if(isFinite(c)){calib=c}}catch(e){}
+$('cal').value=calib;$('calOut').textContent=calib.toFixed(1);
+
+// Géométrie de la jauge
+const pt=(a,r)=>{const t=a*Math.PI/180;return [CX+r*Math.cos(t),CY+r*Math.sin(t)]};
+const [sx,sy]=pt(A0,R),[ex,ey]=pt(A0+SPAN,R);
+const d=`M${sx.toFixed(2)} ${sy.toFixed(2)} A${R} ${R} 0 1 1 ${ex.toFixed(2)} ${ey.toFixed(2)}`;
+$('track').setAttribute('d',d);$('arc').setAttribute('d',d);
+let tk='';
+for(let v=40;v<=MAX_DB;v+=10){
+  const a=A0+SPAN*(v-MIN_DB)/(MAX_DB-MIN_DB);
+  const [x1,y1]=pt(a,R-14),[x2,y2]=pt(a,R-22),[tx,ty]=pt(a,R-34);
+  tk+=`<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="var(--muted)" stroke-width="1.5"/>`+
+      `<text class="tick" x="${tx.toFixed(1)}" y="${(ty+4).toFixed(1)}" text-anchor="middle">${v}</text>`;
+}
+$('ticks').innerHTML=tk;
+
+// Pondération A (IEC 61672)
+function aw(f){
+  const f2=f*f,c1=20.598997**2,c2=107.65265**2,c3=737.86223**2,c4=12194.217**2;
+  const ra=(c4*f2*f2)/((f2+c1)*Math.sqrt((f2+c2)*(f2+c3))*(f2+c4));
+  return 20*Math.log10(ra)+2.0;
+}
+
+function describe(v){
+  const L=[[35,'Silence','Chambre calme, nuit à la campagne.'],[45,'Très calme','Bibliothèque, conversation à voix basse.'],
+   [55,'Calme','Bureau tranquille, pluie fine.'],[65,'Conversation normale','Niveau confortable au quotidien.'],
+   [75,'Bruyant','Rue animée, aspirateur, restaurant plein.'],[85,'Très bruyant','Circulation dense. Fatigue auditive si prolongé.'],
+   [95,'Nuisible','Tondeuse, moto. Protections conseillées à partir de 85 dB(A) en continu.'],
+   [110,'Dangereux','Concert, outils électriques. Risque de lésions en quelques minutes.'],
+   [1e9,'Douleur','Exposition immédiatement dangereuse pour l’audition.']];
+  return L.find(x=>v<x[0]);
+}
+const colorFor=v=>v<70?'var(--ok)':v<85?'var(--warn)':'var(--bad)';
+const f1=v=>isFinite(v)?v.toFixed(1):'--';
+
+function setGauge(v){
+  const p=Math.max(0,Math.min(1,(v-MIN_DB)/(MAX_DB-MIN_DB)))*100;
+  const arc=$('arc');arc.setAttribute('stroke-dasharray',`${p.toFixed(2)} 100`);
+  arc.style.stroke=colorFor(v);
+}
+
+function tick(){
+  an.getFloatTimeDomainData(tbuf);
+  let ms=0,pk=0;
+  for(let i=0;i<tbuf.length;i++){const s=tbuf[i];ms+=s*s;const a=Math.abs(s);if(a>pk)pk=a}
+  ms=Math.max(ms/tbuf.length,1e-14);
+  const raw=ms,n=fbuf.length,bw=ctx.sampleRate/an.fftSize;
+  const wRatio=f=>{let sz=0,sa=0;for(let i=1;i<n;i++){const p=f(i);if(p>0){sz+=p;sa+=p*Math.pow(10,aw(i*bw)/10)}}return sz>0&&sa>0?sa/sz:1};
+  if(weighting==='A'||cal.mode==='noise'||view==='F')an.getFloatFrequencyData(fbuf);
+
+  if(cal.mode==='noise'){
+    for(let i=0;i<n;i++)cal.bins[i]+=Math.pow(10,fbuf[i]/10);
+    cal.ms+=raw;cal.n++;
+    $('calmsg').textContent='Mesure du silence… '+Math.round(cal.n/CAL_N*100)+' %';
+    if(cal.n>=CAL_N){
+      noiseMs=cal.ms/cal.n;noiseBins=Float32Array.from(cal.bins,v=>v/cal.n);
+      const fr=weighting==='A'?wRatio(i=>noiseBins[i]):1;
+      const fl=10*Math.log10(noiseMs*fr)+calib;
+      cal.mode=null;
+      $('calmsg').textContent='Bruit de fond mesuré : '+fl.toFixed(1)+' '+(weighting==='A'?'dB(A)':'dB(Z)')+
+        '. Il est maintenant soustrait.'+(fl>45?' Attention : la pièce est bruyante, cherche un endroit plus silencieux et recommence.':'');
+      reset();return;
+    }
+  }
+
+  if(noiseMs>0)ms=Math.max(ms-noiseMs,raw*0.01);
+  const ratio=weighting==='A'?wRatio(i=>{const p=Math.pow(10,fbuf[i]/10);return noiseBins?Math.max(p-noiseBins[i],0):p}):1;
+  const msW=ms*ratio;
+
+  if(cal.mode==='ref'){
+    cal.acc+=msW;cal.n++;
+    $('calmsg').textContent='Mesure de la référence… '+Math.round(cal.n/CAL_N*100)+' %';
+    if(cal.n>=CAL_N){
+      calib=Math.min(160,Math.max(40,cal.ref-10*Math.log10(cal.acc/cal.n)));
+      $('cal').value=calib;$('calOut').textContent=calib.toFixed(1);
+      try{localStorage.setItem('dbcal',calib)}catch(_){}
+      cal.mode=null;
+      $('calmsg').textContent='Étalonné : le micro lit maintenant '+cal.ref.toFixed(1)+' dB sur ta référence.';
+      reset();return;
+    }
+  }
+  const k=1-Math.exp(-DT/tau);
+  P=started?P+(msW-P)*k:msW;started=true;
+  sumE+=msW*DT;T+=DT;
+  const L=10*Math.log10(P)+calib;
+  const Leq=10*Math.log10(sumE/T)+calib;
+  const pkdb=20*Math.log10(Math.max(pk,1e-7))+calib;
+  if(L<mn)mn=L;if(L>mx)mx=L;if(pkdb>peak)peak=pkdb;
+  hist.push(L);if(hist.length>HIST_N)hist.shift();
+
+  $('val').textContent=Math.max(L,0).toFixed(1);
+  setGauge(L);if(view==='F')fest(L);
+  const ds=describe(L);$('desc').textContent=ds[1];$('note').textContent=ds[2];
+  $('sMin').textContent=f1(mn);$('sAvg').textContent=f1(Leq);$('sMax').textContent=f1(mx);$('sPeak').textContent=f1(peak);
+  draw();
+}
+
+function draw(){
+  const c=$('graph'),dpr=window.devicePixelRatio||1,w=c.clientWidth,h=c.clientHeight;
+  if(c.width!==Math.round(w*dpr)){c.width=Math.round(w*dpr);c.height=Math.round(h*dpr)}
+  const g=c.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,w,h);
+  const cs=getComputedStyle(document.documentElement);
+  const line=cs.getPropertyValue('--line').trim(),muted=cs.getPropertyValue('--muted').trim();
+  const Y0=30,Y1=120,padL=34,y=v=>h-8-(h-20)*(Math.max(Y0,Math.min(Y1,v))-Y0)/(Y1-Y0);
+  g.font='11px "Familjen Grotesk",system-ui,sans-serif';g.fillStyle=muted;g.strokeStyle=line;g.lineWidth=1;
+  for(let v=40;v<=120;v+=20){g.beginPath();g.moveTo(padL,y(v));g.lineTo(w-6,y(v));g.stroke();g.fillText(v,4,y(v)+4)}
+  if(hist.length<2)return;
+  const step=(w-padL-6)/(HIST_N-1),off=HIST_N-hist.length;
+  g.lineWidth=2;g.lineJoin='round';
+  for(let i=1;i<hist.length;i++){
+    g.strokeStyle=cs.getPropertyValue(hist[i]<70?'--ok':hist[i]<85?'--warn':'--bad').trim();
+    g.beginPath();g.moveTo(padL+(off+i-1)*step,y(hist[i-1]));g.lineTo(padL+(off+i)*step,y(hist[i]));g.stroke();
+  }
+}
+
+async function start(){
+  $('err').style.display='none';
+  try{
+    stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
+  }catch(e){
+    $('err').textContent='Accès au micro refusé ou indisponible. Autorise le micro pour ce site dans les réglages du navigateur, puis réessaie.';
+    $('err').style.display='block';return;
+  }
+  ctx=new (window.AudioContext||window.webkitAudioContext)();
+  const src=ctx.createMediaStreamSource(stream);
+  an=ctx.createAnalyser();an.fftSize=4096;an.smoothingTimeConstant=0;
+  src.connect(an);
+  tbuf=new Float32Array(an.fftSize);fbuf=new Float32Array(an.frequencyBinCount);
+  started=false;timer=setInterval(tick,DT*1000);
+  $('go').textContent='Arrêter';$('status').textContent='Mesure en cours';
+}
+function stop(){
+  clearInterval(timer);timer=null;cal={mode:null};
+  if(stream)stream.getTracks().forEach(t=>t.stop());
+  if(ctx)ctx.close();
+  $('go').textContent='Démarrer';$('status').textContent='Micro à l’arrêt';
+}
+function reset(){P=0;sumE=0;T=0;mn=Infinity;mx=-Infinity;peak=-Infinity;hist=[];started=false;
+  ['sMin','sAvg','sMax','sPeak'].forEach(i=>$(i).textContent='--');draw()}
+
+const ledCol=v=>v<70?'#2BE36B':v<85?'#FFD400':v<95?'#FF8A00':'#FF2D2D';
+
+function fest(L){
+  $('fnum').textContent=Math.max(L,0).toFixed(1);
+  $('fnum').style.color=ledCol(L);
+  const now=performance.now();
+  if(L>=ph){ph=L;phT=now}else if(now-phT>1500){ph=Math.max(L,ph-0.9)}
+  const over=L>limit;
+  $('fest').classList.toggle('over',over);
+  $('fover').textContent=over?'Limite dépassée':'Sous la limite';
+  // Spectre en 16 bandes (relatif au niveau global)
+  const sr=ctx.sampleRate,bw=sr/an.fftSize,N=fbuf.length,P=new Float64Array(N);let tot=0;
+  for(let i=1;i<N;i++){P[i]=Math.pow(10,fbuf[i]/10);tot+=P[i]}
+  const lo=40,hi=Math.min(16000,sr/2-1);
+  for(let b=0;b<16;b++){
+    const f1=lo*Math.pow(hi/lo,b/16),f2=lo*Math.pow(hi/lo,(b+1)/16);
+    let s=0;for(let i=Math.max(1,Math.floor(f1/bw));i<=Math.min(N-1,Math.floor(f2/bw));i++)s+=P[i];
+    const v=(s>0&&tot>0)?Math.max(20,L+10*Math.log10(s/tot)):20;
+    bands[b]=v>bands[b]?v:bands[b]*0.8+v*0.2;
+  }
+  drawFest(L);
+}
+
+function drawFest(L){
+  const c=$('fcv'),dpr=window.devicePixelRatio||1,w=c.clientWidth,h=c.clientHeight;
+  if(!w)return;
+  if(c.width!==Math.round(w*dpr)){c.width=Math.round(w*dpr);c.height=Math.round(h*dpr)}
+  const g=c.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,w,h);
+  const off='rgba(255,255,255,.08)',gap=3,SEG=45,step=(MAX_DB-MIN_DB)/SEG;
+  const sw=(w-gap*(SEG-1))/SEG,bh=60,pk=Math.floor((ph-MIN_DB)/step);
+  for(let s=0;s<SEG;s++){
+    const v=MIN_DB+s*step,x=s*(sw+gap);
+    if(L>=v){g.fillStyle=ledCol(v);g.shadowColor=ledCol(v);g.shadowBlur=8}
+    else if(s===pk&&ph>MIN_DB){g.fillStyle='#fff';g.shadowColor='#fff';g.shadowBlur=8}
+    else{g.fillStyle=off;g.shadowBlur=0}
+    g.fillRect(x,0,sw,bh);
+  }
+  g.shadowBlur=0;
+  g.font='11px "Familjen Grotesk",system-ui,sans-serif';g.fillStyle='rgba(255,255,255,.6)';g.textAlign='center';
+  for(let v=40;v<=120;v+=20){g.fillText(v,(v-MIN_DB)/(MAX_DB-MIN_DB)*w,bh+14)}
+  const lx=Math.min(w-1,(limit-MIN_DB)/(MAX_DB-MIN_DB)*w);
+  g.strokeStyle='#fff';g.lineWidth=2;g.setLineDash([4,3]);g.beginPath();g.moveTo(lx,0);g.lineTo(lx,bh+4);g.stroke();g.setLineDash([]);
+  // Spectre
+  const y0=bh+30,rows=12,cols=16,rstep=(MAX_DB-MIN_DB)/rows,ah=h-y0-4;
+  const cw=(w-gap*(cols-1))/cols,rh=(ah-gap*(rows-1))/rows;
+  for(let b=0;b<cols;b++)for(let r=0;r<rows;r++){
+    const v=MIN_DB+r*rstep;
+    g.fillStyle=bands[b]>=v?ledCol(v):off;
+    g.fillRect(b*(cw+gap),y0+ah-(r+1)*rh-r*gap,cw,rh);
+  }
+}
+
+function setView(v){
+  view=v;
+  $('vG').setAttribute('aria-pressed',v==='G');$('vF').setAttribute('aria-pressed',v==='F');
+  document.querySelector('.gauge').hidden=v==='F';$('fest').hidden=v==='G';
+  if(v==='F')drawFest(hist.length?hist[hist.length-1]:0);
+}
+$('vG').onclick=()=>setView('G');$('vF').onclick=()=>setView('F');
+$('lim').oninput=e=>{limit=parseFloat(e.target.value)||105;if(view==='F')drawFest(hist.length?hist[hist.length-1]:0)};
+
+async function runCal(mode){
+  if(mode==='ref'){
+    const r=parseFloat($('refDb').value);
+    if(!isFinite(r)){$('calmsg').textContent='Saisis le niveau de la source de référence.';return}
+  }
+  if(!timer)await start();
+  if(!timer)return;
+  const ref=parseFloat($('refDb').value);
+  if(mode==='noise'){noiseMs=0;noiseBins=null}
+  cal={mode,n:0,ms:0,acc:0,ref,bins:mode==='noise'?new Float64Array(fbuf.length):null};
+  hist=[];
+}
+$('calNoise').onclick=()=>runCal('noise');
+$('calRef').onclick=()=>runCal('ref');
+$('go').onclick=()=>timer?stop():start();
+$('reset').onclick=reset;
+function setW(w){weighting=w;$('wA').setAttribute('aria-pressed',w==='A');$('wZ').setAttribute('aria-pressed',w==='Z');
+  $('unitlbl').textContent=w==='A'?'dB(A)':'dB(Z)';$('funit').textContent=$('unitlbl').textContent;ph=0;reset()}
+function setT(t){tau=t;$('tF').setAttribute('aria-pressed',t===0.125);$('tS').setAttribute('aria-pressed',t===1)}
+$('wA').onclick=()=>setW('A');$('wZ').onclick=()=>setW('Z');
+$('tF').onclick=()=>setT(0.125);$('tS').onclick=()=>setT(1);
+$('cal').oninput=e=>{calib=parseFloat(e.target.value);$('calOut').textContent=calib.toFixed(1);
+  try{localStorage.setItem('dbcal',calib)}catch(_){}
+  reset()};
+window.addEventListener('resize',draw);
+setGauge(MIN_DB);draw();
+})();
+</script>
+</body>
+</html>
