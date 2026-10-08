@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Décibelmètre</title>
+<title>DB-meter</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;600;700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
 <style>
@@ -143,6 +143,8 @@ button{min-height:48px;touch-action:manipulation}
       <button id="tS" aria-pressed="false">Lente</button>
     </div>
     <label class="vibl"><input type="checkbox" id="vib" checked><span id="vibt">Vibreur si limite dépassée</span></label>
+    <button id="vibtest" type="button">Tester le vibreur</button>
+    <span id="vibmsg" aria-live="polite" style="flex:1 1 100%;font-size:.85rem;color:var(--muted)"></span>
   </div>
   <div id="err"></div>
 
@@ -167,7 +169,8 @@ let view='G',ph=0,phT=0,limit=105,dispL=30,tgtL=30,beat=0,avgSlow=30,wl=null;con
 let P=0,sumE=0,T=0,mn=Infinity,mx=-Infinity,peak=-Infinity,hist=[],started=false;
 const HIST_N=600, DT=0.05;
 
-try{const c=parseFloat(localStorage.getItem('dbcal'));if(isFinite(c)){calib=c}}catch(e){}
+// Ancien étalonnage : gardé seulement s'il est plausible. Une vieille valeur aberrante décalait toutes les mesures (140 dB).
+try{const raw=localStorage.getItem('dbcal');if(raw!==null){const c=parseFloat(raw);if(isFinite(c)&&c>=80&&c<=110){calib=c}else{localStorage.removeItem('dbcal')}}}catch(e){}
 
 
 // Géométrie de la jauge
@@ -384,12 +387,20 @@ function drawFest(L){
 }
 
 let lastVib=0,vibOn=true;
+function buzz(pattern){
+  if(!navigator.vibrate)return false;
+  try{return navigator.vibrate(pattern)!==false}catch(_){return false}
+}
 function alertCheck(L){
   const over=L>limit;
   $('lights').classList.toggle('over',over);
   if(over&&vibOn&&navigator.vibrate){
     const t=performance.now();
-    if(t-lastVib>3000){try{navigator.vibrate([250,120,250])}catch(_){}lastVib=t}
+    if(t-lastVib>2500){
+      lastVib=t;
+      const ok=buzz([400,150,400]);
+      $('vibmsg').textContent=ok?'':'Le navigateur bloque la vibration. Appuie sur « Tester le vibreur » pour diagnostiquer.';
+    }
   }
 }
 
@@ -432,8 +443,14 @@ $('vG').onclick=()=>setView('G');$('vF').onclick=()=>setView('F');$('vL').onclic
 if(!document.fullscreenEnabled)$('lfs').hidden=true;
 $('lfs').onclick=()=>{try{document.fullscreenElement?document.exitFullscreen():$('lights').requestFullscreen()}catch(_){}};
 if(!navigator.vibrate){$('vib').disabled=true;$('vib').checked=false;vibOn=false;$('vibt').textContent='Vibreur indisponible sur cet appareil'}
+$('vibtest').onclick=()=>{
+  if(!navigator.vibrate){$('vibmsg').textContent='Ce navigateur ne gère pas la vibration (iPhone/Safari ou ordinateur).';return}
+  $('vibmsg').textContent=buzz([300,120,300])
+    ?'Vibration envoyée. Si tu ne sens rien : vérifie le mode silencieux et les réglages de vibration du téléphone.'
+    :'Le navigateur a refusé la vibration (page dans un iframe sans autorisation, ou réglage du téléphone).';
+};
 $('vib').onchange=e=>{vibOn=e.target.checked;if(vibOn&&navigator.vibrate){try{navigator.vibrate(40)}catch(_){}}};
-$('lim').oninput=e=>{limit=parseFloat(e.target.value)||105;if(view==='F')drawFest(hist.length?hist[hist.length-1]:0)};
+$('lim').oninput=e=>{const v=parseFloat(e.target.value);if(isFinite(v)&&v>=60&&v<=130)limit=v;if(view==='F')drawFest(hist.length?hist[hist.length-1]:0)};
 
 async function runCal(mode){
   if(!timer)await start();
