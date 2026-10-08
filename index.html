@@ -49,33 +49,52 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--ok);outline-off
 .cal label{display:flex;align-items:center;gap:10px;flex-wrap:wrap;color:var(--ink);font-weight:600}
 .cal input[type=range]{flex:1;min-width:160px;accent-color:var(--ok)}
 .cal output{font-variant-numeric:tabular-nums;min-width:5ch}
-.fest{background:#07080d;color:#fff;border:2px solid #1c1f2b;border-radius:20px;padding:18px 16px 14px;transition:border-color .2s,box-shadow .2s}
+.fest{background:#07080d;color:#fff;border:2px solid #1c1f2b;border-radius:20px;padding:16px 12px 12px;transition:border-color .2s,box-shadow .2s}
 .fest[hidden]{display:none}
-.fest.over{border-color:#FF2D2D;box-shadow:0 0 28px rgba(255,45,45,.45)}
-.ftop{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px;margin-bottom:14px}
-#fnum{font-family:Orbitron,"Courier New",monospace;font-weight:700;font-size:clamp(56px,16vw,104px);line-height:1;color:#2BE36B;text-shadow:0 0 18px currentColor;font-variant-numeric:tabular-nums}
-#funit{font-family:Orbitron,"Courier New",monospace;font-size:1.1rem;margin-left:10px;color:#9aa3b5}
-.flim{text-align:right;font-size:.9rem;color:#9aa3b5}
-.flim input{font:inherit;width:6ch;padding:6px;border-radius:8px;border:1px solid #2a2f40;background:#10121b;color:#fff}
-#fover{display:block;margin-top:6px;font-weight:700;font-size:1.05rem;color:#2BE36B}
+.fest.over{border-color:#FF2D2D;box-shadow:0 0 30px rgba(255,45,45,.5)}
+.ftop{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px;margin-bottom:12px}
+#fnum{display:inline-block;transform-origin:left bottom;font-family:Orbitron,"Courier New",monospace;font-weight:700;font-size:clamp(54px,17vw,100px);line-height:1;color:#2BE36B;text-shadow:0 0 18px currentColor;font-variant-numeric:tabular-nums}
+#funit{font-family:Orbitron,"Courier New",monospace;font-size:1rem;margin-left:8px;color:#9aa3b5}
+.flim{display:flex;flex-direction:column;align-items:flex-end;gap:6px;font-size:.9rem;color:#9aa3b5}
+.flim input{width:7ch;padding:6px;border-radius:10px;border:1px solid #2a2f40;background:#10121b;color:#fff;font:inherit}
+.flim button{background:#10121b;color:#fff;border-color:#2a2f40;padding:8px 14px}
+#fover{font-weight:700;font-size:1.05rem;color:#2BE36B}
 .fest.over #fover{color:#FF2D2D;animation:blink .6s steps(2) infinite}
 @keyframes blink{50%{opacity:.25}}
 @media (prefers-reduced-motion:reduce){.fest.over #fover{animation:none}}
-#fcv{height:250px;background:transparent;border:0;border-radius:0}
+#fcv{height:min(62vh,520px);min-height:320px;background:transparent;border:0;border-radius:0;touch-action:manipulation}
+.fest:fullscreen{display:flex;flex-direction:column;border-radius:0;overflow:auto;padding:max(14px,env(safe-area-inset-top)) 14px max(14px,env(safe-area-inset-bottom))}
+.fest:fullscreen #fcv{flex:1;height:auto;min-height:0}
+.lights{position:relative;background:#07080d;border:2px solid #1c1f2b;border-radius:20px;overflow:hidden;transition:border-color .3s}
+.lights[hidden]{display:none}
+.lights.over{border-color:rgba(255,69,58,.75)}
+#lcv{display:block;width:100%;height:min(62vh,520px);min-height:320px;background:transparent;border:0;border-radius:0}
+#lnum{position:absolute;left:16px;bottom:12px;font-family:Orbitron,"Courier New",monospace;font-size:1.3rem;color:rgba(255,255,255,.5)}
+#lfs{position:absolute;right:12px;top:12px;background:rgba(255,255,255,.08);color:rgba(255,255,255,.7);border-color:transparent;padding:8px 14px;min-height:40px}
+.lights:fullscreen{border-radius:0;display:flex}
+.lights:fullscreen #lcv{height:100vh;min-height:0}
+.vibl{display:flex;align-items:center;gap:10px;font-weight:600;min-height:48px}
+.vibl input{width:22px;height:22px;accent-color:var(--ok)}
 .wiz{border-top:1px solid var(--line);padding-top:14px;margin-bottom:16px;color:var(--ink)}
 .wiz p{margin:0 0 12px}
 .wiz .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:6px}
 .wiz input[type=number]{font:inherit;width:6.5ch;padding:8px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink)}
 #calmsg{font-weight:600;min-height:1.4em;color:var(--ok)}
 #err{color:var(--bad);font-weight:600;margin-top:12px;display:none}
-@media (max-width:480px){.stats b{font-size:1.15rem}.big{font-size:68px}}
+.seg button{flex:1}
+button{min-height:48px;touch-action:manipulation}
+.wiz input[type=number],.flim input{min-height:44px;font-size:16px}
+.controls #go{flex:1 1 100%;font-size:1.1rem}
+.controls .seg{flex:1 1 150px}
+.wiz .row button{flex:1 1 100%}
+@media (max-width:480px){main{padding:12px 10px 28px}h1{font-size:1.3rem}.stats b{font-size:1.15rem}.big{font-size:68px}}
 </style>
 </head>
 <body>
 <main>
   <header><h1>Décibelmètre</h1><span id="status">Micro à l’arrêt</span></header>
 
-  <div class="seg" role="group" aria-label="Affichage" style="margin:0 0 12px"><button id="vG" aria-pressed="true">Jauge</button><button id="vF" aria-pressed="false">Festival</button></div>
+  <div class="seg" role="group" aria-label="Affichage" style="margin:0 0 12px"><button id="vG" aria-pressed="true">Jauge</button><button id="vF" aria-pressed="false">Festival</button><button id="vL" aria-pressed="false">Lumières</button></div>
 
   <section class="gauge" aria-label="Niveau sonore">
     <svg viewBox="0 0 300 250" role="img" aria-label="Jauge de niveau sonore">
@@ -92,9 +111,15 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--ok);outline-off
   <section class="fest" id="fest" hidden aria-label="Affichage festival">
     <div class="ftop">
       <div><span id="fnum">--</span><span id="funit">dB(A)</span></div>
-      <div class="flim"><label>Limite <input id="lim" type="number" min="60" max="130" step="1" value="105"> dB</label><span id="fover">Sous la limite</span></div>
+      <div class="flim"><label>Limite <input id="lim" type="number" inputmode="numeric" min="60" max="130" step="1" value="105"> dB</label><span id="fover">Sous la limite</span><button id="fs" type="button">Plein écran</button></div>
     </div>
     <canvas id="fcv" aria-label="Barre de LED et spectre"></canvas>
+  </section>
+
+  <section class="lights" id="lights" hidden aria-label="Mode lumières">
+    <canvas id="lcv" aria-label="Lumières animées selon le volume"></canvas>
+    <span id="lnum">--</span>
+    <button id="lfs" type="button">Plein écran</button>
   </section>
 
   <div class="stats">
@@ -117,19 +142,18 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--ok);outline-off
       <button id="tF" aria-pressed="true">Rapide</button>
       <button id="tS" aria-pressed="false">Lente</button>
     </div>
+    <label class="vibl"><input type="checkbox" id="vib" checked><span id="vibt">Vibreur si limite dépassée</span></label>
   </div>
   <div id="err"></div>
 
   <div class="cal">
     <div class="wiz">
-      <p><b>Étape 1 : bruit de fond.</b> Fais le silence complet pendant 5 secondes. Le bruit propre au micro est mesuré puis retiré de toutes les mesures, ce qui rend les faibles niveaux bien plus justes.</p>
-      <div class="row"><button id="calNoise">Mesurer le silence (5 s)</button></div>
-      <p style="margin-top:16px"><b>Étape 2 : niveau de référence.</b> Place une source dont tu connais le niveau (calibrateur, ou sonomètre de référence à côté) et saisis sa valeur, dans la même pondération que celle affichée (A ou Z).</p>
-      <div class="row"><input id="refDb" type="number" min="30" max="130" step="0.1" value="94" aria-label="Niveau de référence en dB"> dB <button id="calRef">Étalonner sur la référence (5 s)</button></div>
+      <p><b>Étalonnage du bruit de fond.</b> Fais le silence complet pendant 10 secondes. Le bruit propre au micro est mesuré puis retiré de toutes les mesures, ce qui rend les faibles niveaux bien plus justes.</p>
+      <div class="row"><button id="calNoise">Mesurer le silence (10 s)</button></div>
       <div id="calmsg" aria-live="polite"></div>
     </div>
-    <label for="cal">Réglage manuel <input id="cal" type="range" min="40" max="160" step="0.5" value="95"><output id="calOut">95</output></label>
-    <p>Chaque micro est différent : les valeurs sont relatives tant que tu n’as pas étalonné. Compare avec un sonomètre de référence (ou une source connue, par exemple 94 dB à 1 kHz) puis ajuste le curseur jusqu’à obtenir la même valeur. Les réglages automatiques du micro (réduction de bruit, gain auto) sont désactivés pour garder la mesure fidèle.</p>
+    
+    <p>Le silence permet de retirer le bruit propre au micro et à la pièce. Les réglages automatiques du micro (réduction de bruit, gain auto) sont désactivés pour garder la mesure fidèle. L’échelle des dB reste une estimation moyenne de téléphone, car aucun enregistrement de silence ne peut la fixer exactement.</p>
   </div>
 </main>
 
@@ -138,13 +162,13 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--ok);outline-off
 const $=id=>document.getElementById(id);
 const MIN_DB=30, MAX_DB=120, CX=150, CY=140, R=118, A0=150, SPAN=240;
 let ctx,an,stream,tbuf,fbuf,timer=null,weighting='A',tau=0.125,calib=95;
-let noiseMs=0,noiseBins=null,cal={mode:null};const CAL_N=100;
-let view='G',ph=0,phT=0,limit=105;const bands=new Array(16).fill(20);
+let noiseMs=0,noiseBins=null,cal={mode:null};const CAL_N=200;
+let view='G',ph=0,phT=0,limit=105,dispL=30,tgtL=30,beat=0,avgSlow=30,wl=null;const bands=new Array(16).fill(20),caps=new Array(16).fill(20),capV=new Array(16).fill(0),sparks=[];const RM=!!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
 let P=0,sumE=0,T=0,mn=Infinity,mx=-Infinity,peak=-Infinity,hist=[],started=false;
 const HIST_N=600, DT=0.05;
 
 try{const c=parseFloat(localStorage.getItem('dbcal'));if(isFinite(c)){calib=c}}catch(e){}
-$('cal').value=calib;$('calOut').textContent=calib.toFixed(1);
+
 
 // Géométrie de la jauge
 const pt=(a,r)=>{const t=a*Math.PI/180;return [CX+r*Math.cos(t),CY+r*Math.sin(t)]};
@@ -213,18 +237,6 @@ function tick(){
   const ratio=weighting==='A'?wRatio(i=>{const p=Math.pow(10,fbuf[i]/10);return noiseBins?Math.max(p-noiseBins[i],0):p}):1;
   const msW=ms*ratio;
 
-  if(cal.mode==='ref'){
-    cal.acc+=msW;cal.n++;
-    $('calmsg').textContent='Mesure de la référence… '+Math.round(cal.n/CAL_N*100)+' %';
-    if(cal.n>=CAL_N){
-      calib=Math.min(160,Math.max(40,cal.ref-10*Math.log10(cal.acc/cal.n)));
-      $('cal').value=calib;$('calOut').textContent=calib.toFixed(1);
-      try{localStorage.setItem('dbcal',calib)}catch(_){}
-      cal.mode=null;
-      $('calmsg').textContent='Étalonné : le micro lit maintenant '+cal.ref.toFixed(1)+' dB sur ta référence.';
-      reset();return;
-    }
-  }
   const k=1-Math.exp(-DT/tau);
   P=started?P+(msW-P)*k:msW;started=true;
   sumE+=msW*DT;T+=DT;
@@ -235,7 +247,7 @@ function tick(){
   hist.push(L);if(hist.length>HIST_N)hist.shift();
 
   $('val').textContent=Math.max(L,0).toFixed(1);
-  setGauge(L);if(view==='F')fest(L);
+  setGauge(L);alertCheck(L);if(view==='F')fest(L);else if(view==='L')lights(L);
   const ds=describe(L);$('desc').textContent=ds[1];$('note').textContent=ds[2];
   $('sMin').textContent=f1(mn);$('sAvg').textContent=f1(Leq);$('sMax').textContent=f1(mx);$('sPeak').textContent=f1(peak);
   draw();
@@ -274,12 +286,13 @@ async function start(){
   tbuf=new Float32Array(an.fftSize);fbuf=new Float32Array(an.frequencyBinCount);
   started=false;timer=setInterval(tick,DT*1000);
   $('go').textContent='Arrêter';$('status').textContent='Mesure en cours';
+  try{wl=await navigator.wakeLock.request('screen')}catch(_){}
 }
 function stop(){
   clearInterval(timer);timer=null;cal={mode:null};
   if(stream)stream.getTracks().forEach(t=>t.stop());
   if(ctx)ctx.close();
-  $('go').textContent='Démarrer';$('status').textContent='Micro à l’arrêt';
+  $('go').textContent='Démarrer';tgtL=MIN_DB;bands.fill(20);try{if(wl){wl.release();wl=null}}catch(_){}$('status').textContent='Micro à l’arrêt';
 }
 function reset(){P=0;sumE=0;T=0;mn=Infinity;mx=-Infinity;peak=-Infinity;hist=[];started=false;
   ['sMin','sAvg','sMax','sPeak'].forEach(i=>$(i).textContent='--');draw()}
@@ -289,12 +302,12 @@ const ledCol=v=>v<70?'#2BE36B':v<85?'#FFD400':v<95?'#FF8A00':'#FF2D2D';
 function fest(L){
   $('fnum').textContent=Math.max(L,0).toFixed(1);
   $('fnum').style.color=ledCol(L);
-  const now=performance.now();
-  if(L>=ph){ph=L;phT=now}else if(now-phT>1500){ph=Math.max(L,ph-0.9)}
+  tgtL=L;
+  if(L-avgSlow>6&&!RM)beat=1;
+  avgSlow+=(L-avgSlow)*0.06;
   const over=L>limit;
   $('fest').classList.toggle('over',over);
   $('fover').textContent=over?'Limite dépassée':'Sous la limite';
-  // Spectre en 16 bandes (relatif au niveau global)
   const sr=ctx.sampleRate,bw=sr/an.fftSize,N=fbuf.length,P=new Float64Array(N);let tot=0;
   for(let i=1;i<N;i++){P[i]=Math.pow(10,fbuf[i]/10);tot+=P[i]}
   const lo=40,hi=Math.min(16000,sr/2-1);
@@ -304,61 +317,133 @@ function fest(L){
     const v=(s>0&&tot>0)?Math.max(20,L+10*Math.log10(s/tot)):20;
     bands[b]=v>bands[b]?v:bands[b]*0.8+v*0.2;
   }
-  drawFest(L);
+}
+
+function frame(now){
+  if(view==='F'&&!document.hidden){
+    dispL+=(tgtL-dispL)*0.3;
+    if(dispL>=ph){ph=dispL;phT=now}else if(now-phT>1200)ph=Math.max(dispL,ph-0.5);
+    beat*=0.9;
+    for(let b=0;b<16;b++){
+      if(bands[b]>=caps[b]){caps[b]=bands[b];capV[b]=0}else{capV[b]+=0.12;caps[b]=Math.max(bands[b],caps[b]-capV[b])}
+    }
+    if(!RM)$('fnum').style.transform='scale('+(1+beat*0.07).toFixed(3)+')';
+    drawFest(dispL);
+  }else if(view==='L'&&!document.hidden){dispL+=(tgtL-dispL)*0.06;beat*=0.96;drawLights(now)}
+  requestAnimationFrame(frame);
 }
 
 function drawFest(L){
   const c=$('fcv'),dpr=window.devicePixelRatio||1,w=c.clientWidth,h=c.clientHeight;
-  if(!w)return;
-  if(c.width!==Math.round(w*dpr)){c.width=Math.round(w*dpr);c.height=Math.round(h*dpr)}
+  if(!w||!h)return;
+  if(c.width!==Math.round(w*dpr)||c.height!==Math.round(h*dpr)){c.width=Math.round(w*dpr);c.height=Math.round(h*dpr)}
   const g=c.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,w,h);
-  const off='rgba(255,255,255,.08)',gap=3,SEG=45,step=(MAX_DB-MIN_DB)/SEG;
-  const sw=(w-gap*(SEG-1))/SEG,bh=60,pk=Math.floor((ph-MIN_DB)/step);
-  for(let s=0;s<SEG;s++){
-    const v=MIN_DB+s*step,x=s*(sw+gap);
-    if(L>=v){g.fillStyle=ledCol(v);g.shadowColor=ledCol(v);g.shadowBlur=8}
-    else if(s===pk&&ph>MIN_DB){g.fillStyle='#fff';g.shadowColor='#fff';g.shadowBlur=8}
+  const col=ledCol(L),norm=Math.max(0,Math.min(1,(L-MIN_DB)/(MAX_DB-MIN_DB)));
+  const gr=g.createLinearGradient(0,h,0,0);gr.addColorStop(0,col);gr.addColorStop(1,'rgba(0,0,0,0)');
+  g.globalAlpha=0.05+0.25*norm*norm+0.25*beat;g.fillStyle=gr;g.fillRect(0,0,w,h);g.globalAlpha=1;
+
+  const off='rgba(255,255,255,.08)',pad=8,gap=3,ROWS=30,rstep=(MAX_DB-MIN_DB)/ROWS;
+  const rh=(h-2*pad-gap*(ROWS-1))/ROWS,rowY=r=>h-pad-(r+1)*rh-r*gap;
+  const lw=Math.min(76,w*0.22),sx=pad+lw+34,cols=16,cw=(w-sx-pad-gap*(cols-1))/cols;
+
+  const pr=Math.floor((ph-MIN_DB)/rstep);
+  for(let r=0;r<ROWS;r++){
+    const v=MIN_DB+r*rstep;
+    if(L>=v){g.fillStyle=ledCol(v);g.shadowColor=ledCol(v);g.shadowBlur=6+beat*16}
+    else if(r===pr&&ph>MIN_DB+rstep){g.fillStyle='#fff';g.shadowColor='#fff';g.shadowBlur=8}
     else{g.fillStyle=off;g.shadowBlur=0}
-    g.fillRect(x,0,sw,bh);
+    g.fillRect(pad,rowY(r),lw,rh);
   }
   g.shadowBlur=0;
-  g.font='11px "Familjen Grotesk",system-ui,sans-serif';g.fillStyle='rgba(255,255,255,.6)';g.textAlign='center';
-  for(let v=40;v<=120;v+=20){g.fillText(v,(v-MIN_DB)/(MAX_DB-MIN_DB)*w,bh+14)}
-  const lx=Math.min(w-1,(limit-MIN_DB)/(MAX_DB-MIN_DB)*w);
-  g.strokeStyle='#fff';g.lineWidth=2;g.setLineDash([4,3]);g.beginPath();g.moveTo(lx,0);g.lineTo(lx,bh+4);g.stroke();g.setLineDash([]);
-  // Spectre
-  const y0=bh+30,rows=12,cols=16,rstep=(MAX_DB-MIN_DB)/rows,ah=h-y0-4;
-  const cw=(w-gap*(cols-1))/cols,rh=(ah-gap*(rows-1))/rows;
-  for(let b=0;b<cols;b++)for(let r=0;r<rows;r++){
-    const v=MIN_DB+r*rstep;
-    g.fillStyle=bands[b]>=v?ledCol(v):off;
-    g.fillRect(b*(cw+gap),y0+ah-(r+1)*rh-r*gap,cw,rh);
+  g.font='11px "Familjen Grotesk",system-ui,sans-serif';g.fillStyle='rgba(255,255,255,.55)';g.textAlign='left';
+  for(let v=40;v<=120;v+=20){g.fillText(v,pad+lw+5,rowY(Math.min(ROWS-1,(v-MIN_DB)/rstep))+rh/2+4)}
+
+  for(let b=0;b<cols;b++){
+    const capRow=Math.floor((caps[b]-MIN_DB)/rstep);
+    for(let r=0;r<ROWS;r++){
+      const v=MIN_DB+r*rstep;
+      g.fillStyle=bands[b]>=v?ledCol(v):(r===capRow&&caps[b]>MIN_DB+rstep?'#fff':off);
+      g.fillRect(sx+b*(cw+gap),rowY(r),cw,rh);
+    }
   }
+
+  const ly=h-pad-(h-2*pad)*(limit-MIN_DB)/(MAX_DB-MIN_DB);
+  g.strokeStyle='rgba(255,255,255,.8)';g.lineWidth=1.5;g.setLineDash([5,4]);
+  g.beginPath();g.moveTo(pad,ly);g.lineTo(w-pad,ly);g.stroke();g.setLineDash([]);
+
+  if(beat>0.85&&sparks.length<80){
+    const top=rowY(Math.min(ROWS-1,Math.max(0,Math.floor((L-MIN_DB)/rstep))));
+    for(let k=0;k<8;k++)sparks.push({x:pad+Math.random()*lw,y:top,vx:(Math.random()-.5)*3,vy:-1-Math.random()*3,a:1,c:col});
+  }
+  for(let i=sparks.length-1;i>=0;i--){
+    const s=sparks[i];s.x+=s.vx;s.y+=s.vy;s.vy+=0.08;s.a-=0.025;
+    if(s.a<=0){sparks.splice(i,1);continue}
+    g.globalAlpha=s.a;g.fillStyle=s.c;g.fillRect(s.x,s.y,3,3);
+  }
+  g.globalAlpha=1;
+}
+
+let lastVib=0,vibOn=true;
+function alertCheck(L){
+  const over=L>limit;
+  $('lights').classList.toggle('over',over);
+  if(over&&vibOn&&navigator.vibrate){
+    const t=performance.now();
+    if(t-lastVib>3000){try{navigator.vibrate([250,120,250])}catch(_){}lastVib=t}
+  }
+}
+
+function lights(L){
+  tgtL=L;
+  if(L-avgSlow>6&&!RM)beat=1;
+  avgSlow+=(L-avgSlow)*0.06;
+  $('lnum').textContent=Math.max(L,0).toFixed(0)+' '+$('funit').textContent;
+}
+
+function drawLights(t){
+  const c=$('lcv'),dpr=window.devicePixelRatio||1,w=c.clientWidth,h=c.clientHeight;
+  if(!w||!h)return;
+  if(c.width!==Math.round(w*dpr)||c.height!==Math.round(h*dpr)){c.width=Math.round(w*dpr);c.height=Math.round(h*dpr)}
+  const g=c.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,w,h);
+  const norm=Math.max(0,Math.min(1,(dispL-MIN_DB)/(MAX_DB-MIN_DB)));
+  const hue=205+norm*140,sec=RM?0:t/1000;
+  const a=0.10+0.38*norm+Math.min(0.12,beat*0.12);
+  g.globalCompositeOperation='lighter';
+  [[0.25,0.35,0],[0.75,0.5,2],[0.5,0.8,4]].forEach((b,i)=>{
+    const x=(b[0]+0.12*Math.sin(sec*0.15+b[2]))*w,y=(b[1]+0.1*Math.cos(sec*0.12+b[2]*1.3))*h;
+    const r=Math.max(w,h)*(0.45+0.25*norm+beat*0.08),hh=hue+i*28;
+    const gr=g.createRadialGradient(x,y,0,x,y,r);
+    gr.addColorStop(0,'hsla('+hh+',65%,45%,'+a+')');
+    gr.addColorStop(1,'hsla('+hh+',65%,45%,0)');
+    g.fillStyle=gr;g.fillRect(0,0,w,h);
+  });
+  g.globalCompositeOperation='source-over';
 }
 
 function setView(v){
   view=v;
-  $('vG').setAttribute('aria-pressed',v==='G');$('vF').setAttribute('aria-pressed',v==='F');
-  document.querySelector('.gauge').hidden=v==='F';$('fest').hidden=v==='G';
+  ['G','F','L'].forEach(k=>$('v'+k).setAttribute('aria-pressed',k===v));
+  document.querySelector('.gauge').hidden=v!=='G';$('fest').hidden=v!=='F';$('lights').hidden=v!=='L';
   if(v==='F')drawFest(hist.length?hist[hist.length-1]:0);
 }
-$('vG').onclick=()=>setView('G');$('vF').onclick=()=>setView('F');
+if(!document.fullscreenEnabled)$('fs').hidden=true;
+$('fs').onclick=()=>{try{document.fullscreenElement?document.exitFullscreen():$('fest').requestFullscreen()}catch(_){}};
+$('vG').onclick=()=>setView('G');$('vF').onclick=()=>setView('F');$('vL').onclick=()=>setView('L');
+if(!document.fullscreenEnabled)$('lfs').hidden=true;
+$('lfs').onclick=()=>{try{document.fullscreenElement?document.exitFullscreen():$('lights').requestFullscreen()}catch(_){}};
+if(!navigator.vibrate){$('vib').disabled=true;$('vib').checked=false;vibOn=false;$('vibt').textContent='Vibreur indisponible sur cet appareil'}
+$('vib').onchange=e=>{vibOn=e.target.checked;if(vibOn&&navigator.vibrate){try{navigator.vibrate(40)}catch(_){}}};
 $('lim').oninput=e=>{limit=parseFloat(e.target.value)||105;if(view==='F')drawFest(hist.length?hist[hist.length-1]:0)};
 
 async function runCal(mode){
-  if(mode==='ref'){
-    const r=parseFloat($('refDb').value);
-    if(!isFinite(r)){$('calmsg').textContent='Saisis le niveau de la source de référence.';return}
-  }
   if(!timer)await start();
   if(!timer)return;
-  const ref=parseFloat($('refDb').value);
   if(mode==='noise'){noiseMs=0;noiseBins=null}
-  cal={mode,n:0,ms:0,acc:0,ref,bins:mode==='noise'?new Float64Array(fbuf.length):null};
+  cal={mode,n:0,ms:0,acc:0,bins:mode==='noise'?new Float64Array(fbuf.length):null};
   hist=[];
 }
 $('calNoise').onclick=()=>runCal('noise');
-$('calRef').onclick=()=>runCal('ref');
+
 $('go').onclick=()=>timer?stop():start();
 $('reset').onclick=reset;
 function setW(w){weighting=w;$('wA').setAttribute('aria-pressed',w==='A');$('wZ').setAttribute('aria-pressed',w==='Z');
@@ -366,11 +451,9 @@ function setW(w){weighting=w;$('wA').setAttribute('aria-pressed',w==='A');$('wZ'
 function setT(t){tau=t;$('tF').setAttribute('aria-pressed',t===0.125);$('tS').setAttribute('aria-pressed',t===1)}
 $('wA').onclick=()=>setW('A');$('wZ').onclick=()=>setW('Z');
 $('tF').onclick=()=>setT(0.125);$('tS').onclick=()=>setT(1);
-$('cal').oninput=e=>{calib=parseFloat(e.target.value);$('calOut').textContent=calib.toFixed(1);
-  try{localStorage.setItem('dbcal',calib)}catch(_){}
-  reset()};
+
 window.addEventListener('resize',draw);
-setGauge(MIN_DB);draw();
+setGauge(MIN_DB);draw();setView('F');requestAnimationFrame(frame);
 })();
 </script>
 </body>
